@@ -454,7 +454,7 @@
     // Load Employee 360 View
     async function loadEmployee360Data() {
       try {
-        const metrics = await loadCSV('data/employee360/metrics.csv');
+        const metrics = await loadCSV('/hr_dashboard/data/employee360/metrics.csv');
         const metricsContainer = document.getElementById('employee360-metrics');
         metricsContainer.innerHTML = metrics.map(m => `
           <div class="metric-card">
@@ -463,7 +463,7 @@
             ${m.change ? `<p class="text-sm opacity-90">${m.change}</p>` : ''}
           </div>`).join('');
 
-        const deptEmployees = await loadCSV('data/employee360/department_employees.csv');
+        const deptEmployees = await loadCSV('/hr_dashboard/data/employee360/department_employees.csv');
         createBarChart('deptEmployeesChart',
           deptEmployees.map(d => d.department),
           deptEmployees.map(d => Number(d.total_employees)),
