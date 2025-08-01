@@ -278,26 +278,17 @@
   </main>
 
   <script>
-    // --- START: CORRECTED SCRIPT BLOCK ---
-
     /* Helpers */
-    const REPO_NAME = 'hr-dashboard'; // IMPORTANT: Change this if your repository name is different!
-
     function cacheBustUrl(url) {
       return url + '?v=' + new Date().getTime();
     }
 
-    async function loadCSV(relativePath) {
-      // This function constructs the full, correct path for GitHub Pages.
-      const fullPath = `/${REPO_NAME}${relativePath}`;
-      const response = await fetch(cacheBustUrl(fullPath));
-      if (!response.ok) {
-        console.error(`Failed to load ${fullPath} - Status: ${response.status}`);
-        throw new Error(`Failed to load ${fullPath}`);
-      }
+    async function loadCSV(path) {
+      const response = await fetch(cacheBustUrl(path));
+      if (!response.ok) throw new Error(`Failed to load ${path}`);
       const text = await response.text();
       const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-      if(result.errors.length) console.warn(`CSV parsing errors for ${fullPath}:`, result.errors);
+      if(result.errors.length) console.warn(`CSV parsing errors for ${path}:`, result.errors);
       return result.data;
     }
 
@@ -348,6 +339,7 @@
       });
     }
 
+    // First bar deep red highlight
     function createBarChartWithHighlightFirst(id, labels, data) {
       destroyChart(id);
       const ctx = document.getElementById(id).getContext('2d');
@@ -419,6 +411,7 @@
       return str.replace(/\b\w/g, c => c.toUpperCase());
     }
 
+    // Tabs
     function showTab(tabName) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -430,6 +423,7 @@
       event.target.classList.remove('text-gray-600', 'border-transparent');
     }
 
+    // Candidate search filter
     function filterCandidates() {
       const searchInput = document.getElementById("candidateSearch").value.toLowerCase();
       const rows = document.querySelectorAll("#candidateTableBody tr");
@@ -439,6 +433,7 @@
       });
     }
 
+    // Candidate probability color helper
     function getProbabilityColor(prob) {
       prob = Number(prob);
       if (prob >= 80) return "green";
@@ -446,6 +441,7 @@
       return "red";
     }
 
+    // Category color helper
     function getCategoryColor(cat) {
       switch(cat) {
         case "High": return "magenta";
@@ -458,7 +454,7 @@
     // Load Employee 360 View
     async function loadEmployee360Data() {
       try {
-        const metrics = await loadCSV('/data/employee360/metrics.csv');
+        const metrics = await loadCSV('/hr_dashboard/data/employee360/metrics.csv');
         const metricsContainer = document.getElementById('employee360-metrics');
         metricsContainer.innerHTML = metrics.map(m => `
           <div class="metric-card">
@@ -467,21 +463,21 @@
             ${m.change ? `<p class="text-sm opacity-90">${m.change}</p>` : ''}
           </div>`).join('');
 
-        const deptEmployees = await loadCSV('/data/employee360/department_employees.csv');
+        const deptEmployees = await loadCSV('/hr_dashboard/data/employee360/department_employees.csv');
         createBarChart('deptEmployeesChart',
           deptEmployees.map(d => d.department),
           deptEmployees.map(d => Number(d.total_employees)),
           'Total Employees'
         );
 
-        const deptNewEmployees = await loadCSV('/data/employee360/department_new_employees.csv');
+        const deptNewEmployees = await loadCSV('data/employee360/department_new_employees.csv');
         createBarChart('deptNewEmployeesChart',
           deptNewEmployees.map(d => d.department),
           deptNewEmployees.map(d => Number(d.new_employees)),
           'New Employees'
         );
 
-        const timeToHire = await loadCSV('/data/employee360/time_to_hire.csv');
+        const timeToHire = await loadCSV('data/employee360/time_to_hire.csv');
         createBarChart('timeToHireChart',
           timeToHire.map(d => d.department),
           timeToHire.map(d => Number(d.days_to_hire)),
@@ -495,7 +491,8 @@
     // Load Attrition Looker
     async function loadAttritionData() {
       try {
-        const metrics = await loadCSV('/data/attrition/metrics.csv');
+        // Cards
+        const metrics = await loadCSV('data/attrition/metrics.csv');
         const metricsContainer = document.getElementById('attrition-metrics');
         metricsContainer.innerHTML = metrics.map(m => `
           <div class="metric-card">
@@ -504,18 +501,21 @@
             ${m.change ? `<p class="text-sm opacity-90">${m.change}</p>` : ''}
           </div>`).join('');
 
-        const reasons = await loadCSV('/data/attrition/reasons.csv');
+        // Word Cloud - Top attrition reasons
+        const reasons = await loadCSV('data/attrition/reasons.csv');
         const reasonsContainer = document.getElementById('attritionReasons');
         reasonsContainer.innerHTML = reasons.map(r => `
           <span style="font-size: ${Number(r.weight)}px; color: ${getRandomMagentaColor()};">${r.reason}</span>`).join('');
 
-        const deptRisk = await loadCSV('/data/attrition/department_risk.csv');
+        // Department risk chart
+        const deptRisk = await loadCSV('data/attrition/department_risk.csv');
         createBarChart('departmentRiskChart',
           deptRisk.map(d => d.department),
           deptRisk.map(d => Number(d.risk_percentage)),
           '% Users at Risk by Dept'
         );
 
+        // Expected attrition bar charts (4-13)
         const categories = {
           gender: 'gender.csv',
           grade: 'grade.csv',
@@ -532,7 +532,7 @@
         for (const [category, file] of Object.entries(categories)) {
           const chartId = category + 'AttritionChart';
           try {
-            const dataCSV = await loadCSV(`/data/attrition/${file}`);
+            const dataCSV = await loadCSV(`data/attrition/${file}`);
             if (dataCSV.length > 0) {
               createBarChartWithHighlightFirst(chartId,
                 dataCSV.map(d => d.category),
@@ -544,7 +544,8 @@
           }
         }
 
-        const sentiment = await loadCSV('/data/attrition/sentiment.csv');
+        // Word Cloud - Sentiment analysis
+        const sentiment = await loadCSV('data/attrition/sentiment.csv');
         const sentimentContainer = document.getElementById('sentimentCloud');
         sentimentContainer.innerHTML = sentiment.map(s => `
           <span style="font-size: ${Number(s.weight)}px; color: ${getRandomMagentaColor()};">${s.sentiment}</span>
@@ -558,13 +559,13 @@
     // Load Talent Acquisition Looker
     async function loadTalentAcquisitionData() {
       try {
-        const joiningProb = await loadCSV('/data/talent/joining_probability.csv');
+        const joiningProb = await loadCSV('data/talent/joining_probability.csv');
         createHorizontalBarChart('joiningProbabilityChart',
           joiningProb.map(d => d.category),
           joiningProb.map(d => Number(d.percentage))
         );
 
-        const candidates = await loadCSV('/data/talent/candidates.csv');
+        const candidates = await loadCSV('data/talent/candidates.csv');
         const tbody = document.getElementById('candidateTableBody');
         tbody.innerHTML = candidates.map(c => {
           const pColor = getProbabilityColor(c.probability);
@@ -593,8 +594,6 @@
       loadAttritionData();
       loadTalentAcquisitionData();
     });
-
-    // --- END: CORRECTED SCRIPT BLOCK ---
   </script>
 
 </body>
