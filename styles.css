@@ -63,6 +63,9 @@ header p {
     transition: all 0.3s ease;
     white-space: nowrap;
     margin: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .tab-btn:hover {
@@ -74,6 +77,16 @@ header p {
     background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
     color: white;
     box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.tab-btn:hover .tab-icon {
+    transform: scale(1.1);
 }
 
 /* Tab Content */
@@ -321,6 +334,12 @@ header p {
     .tab-btn {
         padding: 10px 16px;
         font-size: 0.9rem;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .tab-icon {
+        font-size: 1rem;
     }
     
     .cards-container {
@@ -368,6 +387,12 @@ header p {
     .tab-btn {
         padding: 8px 12px;
         font-size: 0.8rem;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .tab-icon {
+        font-size: 0.9rem;
     }
     
     .chart-wrapper {
