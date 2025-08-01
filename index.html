@@ -1,600 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DT-HR Analytics Dashboard</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- PapaParse for CSV parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.1/papaparse.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            magenta: {
-              50: "#fdf2f8",
-              100: "#fce7f3",
-              200: "#fbcfe8",
-              300: "#f9a8d4",
-              400: "#f472b6",
-              500: "#ec4899",
-              600: "#db2777",
-              700: "#be185d",
-              800: "#9d174d",
-              900: "#831843",
-            },
-          },
-        },
-      },
-    };
-  </script>
-
-  <style>
-    /* Styling, mostly from Tailwind plus custom for word clouds and cards */
-    .word-cloud {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      padding: 20px;
-      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-      border-radius: 12px;
-      min-height: 200px;
-    }
-
-    .word-cloud span {
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      transition: transform 0.2s;
-      user-select: none;
-      cursor: default;
-    }
-
-    .word-cloud span:hover {
-      transform: scale(1.1);
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .metric-card {
-      background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
-      color: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
-      transition: transform 0.2s;
-    }
-
-    .metric-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .chart-container {
-      background: white;
-      border-radius: 12px;
-      padding: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      border: 2px solid #fce7f3;
-      height: 250px;
-    }
-
-    .chart-container canvas {
-      height: 180px !important;
-    }
-
-    @media (min-width: 640px) {
-      .chart-container {
-        padding: 16px;
-        height: 280px;
-      }
-      .chart-container canvas {
-        height: 200px !important;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .chart-container {
-        height: 300px;
-      }
-      .chart-container canvas {
-        height: 220px !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DT-HR Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
-<body class="bg-gradient-to-br from-magenta-50 to-magenta-100 min-h-screen">
+<body>
+    <div class="container">
+        <header>
+            <h1>DT-HR Dashboard</h1>
+            <p>Human Resources Analytics & Insights</p>
+        </header>
 
-  <!-- Header -->
-  <header class="bg-white shadow-lg border-b-4 border-magenta-500">
-    <div class="container mx-auto px-4 sm:px-6 py-4">
-      <h1 class="text-2xl sm:text-3xl font-bold text-magenta-800">DT-HR Analytics Dashboard</h1>
-      <p class="text-sm sm:text-base text-magenta-600 mt-2">Comprehensive HR Insights & Analytics</p>
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="employee360">Employee 360 View</button>
+            <button class="tab-btn" data-tab="attrition">Attrition Looker</button>
+            <button class="tab-btn" data-tab="talent">Talent Acquisition Looker</button>
+        </nav>
+
+        <!-- Employee 360 View Tab -->
+        <div id="employee360" class="tab-content active">
+            <h2>Employee 360 View</h2>
+            
+            <!-- Cards Section -->
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <div class="card-content">
+                        <h3>Total Employees</h3>
+                        <div class="card-value" id="totalEmployees">-</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🆕</div>
+                    <div class="card-content">
+                        <h3>Total New Employees</h3>
+                        <div class="card-value" id="newEmployees">-</div>
+                        <div class="card-growth" id="newEmployeesGrowth">-</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <div class="card-content">
+                        <h3>Average Time to Hire</h3>
+                        <div class="card-value" id="avgTimeToHire">-</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📍</div>
+                    <div class="card-content">
+                        <h3>Total Positions</h3>
+                        <div class="card-value" id="totalPositions">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <h3>Department-wise Total Employees</h3>
+                    <canvas id="deptEmployeesChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Department-wise New Employees</h3>
+                    <canvas id="deptNewEmployeesChart"></canvas>
+                </div>
+                <div class="chart-wrapper">
+                    <h3>Average Time to Hire by Department</h3>
+                    <canvas id="deptTimeToHireChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attrition Looker Tab -->
+        <div id="attrition" class="tab-content">
+            <h2>Attrition Looker</h2>
+            
+            <!-- Cards Section -->
+            <div class="cards-container">
+                <div class="card attrition-card">
+                    <div class="card-icon">⚠️</div>
+                    <div class="card-content">
+                        <h3>Users at Risk of Attrition</h3>
+                        <div class="card-value" id="attritionRisk">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-wrapper full-width">
+                    <h3>Top Reasons for Attrition (Company-wide)</h3>
+                    <div id="attritionReasonsWordcloud"></div>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>% Users at Risk by Department</h3>
+                    <canvas id="deptAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Gender</h3>
+                    <canvas id="genderAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Grade</h3>
+                    <canvas id="gradeAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Designation</h3>
+                    <canvas id="designationAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Tenure</h3>
+                    <canvas id="tenureAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Business Unit</h3>
+                    <canvas id="businessUnitAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Manager</h3>
+                    <canvas id="managerAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Last Rating</h3>
+                    <canvas id="ratingAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Hometown Tier</h3>
+                    <canvas id="hometownAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Age</h3>
+                    <canvas id="ageAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper">
+                    <h3>Expected Attrition by Commutation Distance</h3>
+                    <canvas id="distanceAttritionChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper full-width">
+                    <h3>Top Reasons for Attrition (Sentiment Analysis)</h3>
+                    <div id="sentimentWordcloud"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Talent Acquisition Looker Tab -->
+        <div id="talent" class="tab-content">
+            <h2>Talent Acquisition Looker</h2>
+            
+            <div class="charts-container">
+                <div class="chart-wrapper">
+                    <h3>Overall Chances of Joining by Category</h3>
+                    <canvas id="joiningChancesChart"></canvas>
+                </div>
+                
+                <div class="chart-wrapper full-width">
+                    <h3>Candidate View</h3>
+                    <div class="table-container">
+                        <table id="candidateTable">
+                            <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Email</th>
+                                    <th>Join Probability</th>
+                                    <th>Join Probability Category</th>
+                                </tr>
+                            </thead>
+                            <tbody id="candidateTableBody">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <!-- Navigation Tabs -->
-  <nav class="bg-white shadow-md sticky top-0 z-10">
-    <div class="container mx-auto px-4 sm:px-6">
-      <div class="flex space-x-4 sm:space-x-8 overflow-x-auto">
-        <button onclick="showTab('employee360')" class="tab-btn active py-3 sm:py-4 px-3 sm:px-6 text-sm sm:text-base text-magenta-700 border-b-2 border-magenta-500 font-semibold whitespace-nowrap">Employee 360 View</button>
-        <button onclick="showTab('attrition')" class="tab-btn py-3 sm:py-4 px-3 sm:px-6 text-sm sm:text-base text-gray-600 hover:text-magenta-700 border-b-2 border-transparent hover:border-magenta-300 font-semibold whitespace-nowrap">Attrition Looker</button>
-        <button onclick="showTab('talent')" class="tab-btn py-3 sm:py-4 px-3 sm:px-6 text-sm sm:text-base text-gray-600 hover:text-magenta-700 border-b-2 border-transparent hover:border-magenta-300 font-semibold whitespace-nowrap">Talent Acquisition Looker</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
-    <!-- Employee 360 View -->
-    <div id="employee360" class="tab-content active">
-      <h2 class="text-2xl font-bold text-magenta-800 mb-6">Employee 360 View</h2>
-
-      <!-- Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8" id="employee360-metrics"></div>
-
-      <!-- Charts -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Department-wise Total Employees</h3>
-          <canvas id="deptEmployeesChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Department-wise New Employees</h3>
-          <canvas id="deptNewEmployeesChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Average Time to Hire by Department</h3>
-          <canvas id="timeToHireChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Attrition Looker -->
-    <div id="attrition" class="tab-content">
-      <h2 class="text-2xl font-bold text-magenta-800 mb-6">Attrition Looker</h2>
-
-      <!-- 1. Metric Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8" id="attrition-metrics"></div>
-
-      <!-- 2. Word Cloud: Top Reasons for Attrition -->
-      <div class="chart-container mb-6">
-        <h3 class="text-lg font-semibold text-magenta-800 mb-4">Top Reasons for Attrition</h3>
-        <div class="word-cloud" id="attritionReasons"></div>
-      </div>
-
-      <!-- 3. Bar Chart: % Users at Risk by Department -->
-      <div class="chart-container mb-6">
-        <h3 class="text-lg font-semibold text-magenta-800 mb-4">% Users at Risk by Department</h3>
-        <canvas id="departmentRiskChart"></canvas>
-      </div>
-
-      <!-- 4-13. Expected Attrition Count Charts -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Gender</h3>
-          <canvas id="genderAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Grade</h3>
-          <canvas id="gradeAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Designation</h3>
-          <canvas id="designationAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Tenure</h3>
-          <canvas id="tenureAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Business Unit</h3>
-          <canvas id="businessUnitAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Manager</h3>
-          <canvas id="managerAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Last Rating</h3>
-          <canvas id="ratingAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Hometown Tier</h3>
-          <canvas id="hometownAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Age</h3>
-          <canvas id="ageAttritionChart"></canvas>
-        </div>
-        <div class="chart-container">
-          <h3 class="text-sm font-semibold text-magenta-800 mb-2">Attrition by Commute Distance</h3>
-          <canvas id="commuteAttritionChart"></canvas>
-        </div>
-      </div>
-
-      <!-- 14. Sentiment Word Cloud -->
-      <div class="chart-container mt-6">
-        <h3 class="text-lg font-semibold text-magenta-800 mb-4">Top Reasons for Attrition Based on Employee Sentiment Analysis</h3>
-        <div class="word-cloud" id="sentimentCloud"></div>
-      </div>
-    </div>
-
-    <!-- Talent Acquisition Looker -->
-    <div id="talent" class="tab-content">
-      <h2 class="text-2xl font-bold text-magenta-800 mb-6">Talent Acquisition Looker</h2>
-
-      <!-- Horizontal Bar Chart -->
-      <div class="chart-container mb-6">
-        <h3 class="text-lg font-semibold text-magenta-800 mb-4">Overall Chances of Joining by Category</h3>
-        <canvas id="joiningProbabilityChart"></canvas>
-      </div>
-
-      <!-- Candidate Table -->
-      <div class="bg-white rounded-lg p-4 sm:p-6 shadow-lg border-2 border-magenta-200">
-        <h3 class="text-lg font-semibold text-magenta-800 mb-4">Candidate Overview</h3>
-
-        <!-- Search Filter -->
-        <div class="mb-4">
-          <input
-            type="text"
-            id="candidateSearch"
-            placeholder="Search by candidate name..."
-            class="w-full px-4 py-2 border border-magenta-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta-500 focus:border-transparent"
-            onkeyup="filterCandidates()"
-          />
-        </div>
-
-        <div class="overflow-x-auto max-h-96 overflow-y-auto">
-          <table class="w-full text-sm" id="candidateTable">
-            <thead class="bg-magenta-100 sticky top-0">
-              <tr>
-                <th class="px-3 py-3 text-left text-magenta-800 font-semibold text-xs sm:text-sm">Candidate</th>
-                <th class="px-3 py-3 text-left text-magenta-800 font-semibold text-xs sm:text-sm">Email</th>
-                <th class="px-3 py-3 text-left text-magenta-800 font-semibold text-xs sm:text-sm">Join Probability</th>
-                <th class="px-3 py-3 text-left text-magenta-800 font-semibold text-xs sm:text-sm">Category</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-magenta-200" id="candidateTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <script>
-    /* Helpers */
-    function cacheBustUrl(url) {
-      return url + '?v=' + new Date().getTime();
-    }
-
-    async function loadCSV(path) {
-      const response = await fetch(cacheBustUrl(path));
-      if (!response.ok) throw new Error(`Failed to load ${path}`);
-      const text = await response.text();
-      const result = Papa.parse(text, { header: true, skipEmptyLines: true });
-      if(result.errors.length) console.warn(`CSV parsing errors for ${path}:`, result.errors);
-      return result.data;
-    }
-
-    const magentaColors = {
-      primary: "#ec4899",
-      secondary: "#db2777",
-      tertiary: "#be185d",
-      lighter: "#fce7f3"
-    };
-
-    const charts = {};
-
-    function destroyChart(id) {
-      if (charts[id]) {
-        charts[id].destroy();
-        delete charts[id];
-      }
-    }
-
-    function createBarChart(id, labels, data, label, colorPrimary = magentaColors.primary, colorSecondary = magentaColors.secondary) {
-      destroyChart(id);
-      const ctx = document.getElementById(id).getContext('2d');
-      charts[id] = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label,
-            data,
-            backgroundColor: colorPrimary,
-            borderColor: colorSecondary,
-            borderWidth: 1,
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: magentaColors.lighter }
-            },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    // First bar deep red highlight
-    function createBarChartWithHighlightFirst(id, labels, data) {
-      destroyChart(id);
-      const ctx = document.getElementById(id).getContext('2d');
-      const bgColors = data.map((_, i) => i === 0 ? "#dc2626" : magentaColors.primary);
-      const borderColors = bgColors.map(c => c === "#dc2626" ? "#b91c1c" : magentaColors.secondary);
-      charts[id] = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Expected Attrition Count',
-            data,
-            backgroundColor: bgColors,
-            borderColor: borderColors,
-            borderWidth: 1,
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: magentaColors.lighter }
-            },
-            x: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    function createHorizontalBarChart(id, labels, data) {
-      destroyChart(id);
-      const ctx = document.getElementById(id).getContext('2d');
-      charts[id] = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Joining Probability %',
-            data,
-            backgroundColor: [magentaColors.primary, magentaColors.secondary, magentaColors.tertiary],
-            borderColor: [magentaColors.secondary, magentaColors.tertiary, "#9d174d"],
-            borderWidth: 1,
-            borderRadius: 20,
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { beginAtZero: true, max: 100, grid: { color: magentaColors.lighter } },
-            y: { grid: { display: false } }
-          }
-        }
-      });
-    }
-
-    function getRandomMagentaColor() {
-      const colors = ['#be185d', '#db2777', '#ec4899', '#f472b6', '#f9a8d4'];
-      return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    function capitalizeWords(str) {
-      return str.replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    // Tabs
-    function showTab(tabName) {
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active', 'text-magenta-700', 'border-magenta-500');
-        btn.classList.add('text-gray-600', 'border-transparent');
-      });
-      document.getElementById(tabName).classList.add('active');
-      event.target.classList.add('active', 'text-magenta-700', 'border-magenta-500');
-      event.target.classList.remove('text-gray-600', 'border-transparent');
-    }
-
-    // Candidate search filter
-    function filterCandidates() {
-      const searchInput = document.getElementById("candidateSearch").value.toLowerCase();
-      const rows = document.querySelectorAll("#candidateTableBody tr");
-      rows.forEach(row => {
-        const name = row.querySelector(".candidate-name").textContent.toLowerCase();
-        row.style.display = name.includes(searchInput) ? "" : "none";
-      });
-    }
-
-    // Candidate probability color helper
-    function getProbabilityColor(prob) {
-      prob = Number(prob);
-      if (prob >= 80) return "green";
-      if (prob >= 60) return "yellow";
-      return "red";
-    }
-
-    // Category color helper
-    function getCategoryColor(cat) {
-      switch(cat) {
-        case "High": return "magenta";
-        case "Medium": return "yellow";
-        case "Low": return "red";
-        default: return "gray";
-      }
-    }
-
-    // Load Employee 360 View
-    async function loadEmployee360Data() {
-      try {
-        const metrics = await loadCSV('data/employee360/metrics.csv');
-        const metricsContainer = document.getElementById('employee360-metrics');
-        metricsContainer.innerHTML = metrics.map(m => `
-          <div class="metric-card">
-            <h3 class="text-lg font-semibold mb-2">${m.metric}</h3>
-            <p class="text-3xl font-bold">${m.value}</p>
-            ${m.change ? `<p class="text-sm opacity-90">${m.change}</p>` : ''}
-          </div>`).join('');
-
-        const deptEmployees = await loadCSV('data/employee360/department_employees.csv');
-        createBarChart('deptEmployeesChart',
-          deptEmployees.map(d => d.department),
-          deptEmployees.map(d => Number(d.total_employees)),
-          'Total Employees'
-        );
-
-        const deptNewEmployees = await loadCSV('data/employee360/department_new_employees.csv');
-        createBarChart('deptNewEmployeesChart',
-          deptNewEmployees.map(d => d.department),
-          deptNewEmployees.map(d => Number(d.new_employees)),
-          'New Employees'
-        );
-
-        const timeToHire = await loadCSV('data/employee360/time_to_hire.csv');
-        createBarChart('timeToHireChart',
-          timeToHire.map(d => d.department),
-          timeToHire.map(d => Number(d.days_to_hire)),
-          'Days to Hire'
-        );
-      } catch (e) {
-        console.error('Error loading Employee 360 data:', e);
-      }
-    }
-
-    // Load Attrition Looker
-    async function loadAttritionData() {
-      try {
-        // Cards
-        const metrics = await loadCSV('data/attrition/metrics.csv');
-        const metricsContainer = document.getElementById('attrition-metrics');
-        metricsContainer.innerHTML = metrics.map(m => `
-          <div class="metric-card">
-            <h3 class="text-lg font-semibold mb-2">${m.metric}</h3>
-            <p class="text-3xl font-bold">${m.value}</p>
-            ${m.change ? `<p class="text-sm opacity-90">${m.change}</p>` : ''}
-          </div>`).join('');
-
-        // Word Cloud - Top attrition reasons
-        const reasons = await loadCSV('data/attrition/reasons.csv');
-        const reasonsContainer = document.getElementById('attritionReasons');
-        reasonsContainer.innerHTML = reasons.map(r => `
-          <span style="font-size: ${Number(r.weight)}px; color: ${getRandomMagentaColor()};">${r.reason}</span>`).join('');
-
-        // Department risk chart
-        const deptRisk = await loadCSV('data/attrition/department_risk.csv');
-        createBarChart('departmentRiskChart',
-          deptRisk.map(d => d.department),
-          deptRisk.map(d => Number(d.risk_percentage)),
-          '% Users at Risk by Dept'
-        );
-
-        // Expected attrition bar charts (4-13)
-        const categories = {
-          gender: 'gender.csv',
-          grade: 'grade.csv',
-          designation: 'designation.csv',
-          tenure: 'tenure.csv',
-          businessUnit: 'business_unit.csv',
-          manager: 'manager.csv',
-          rating: 'rating.csv',
-          hometown: 'hometown.csv',
-          age: 'age.csv',
-          commute: 'commute.csv'
-        };
-
-        for (const [category, file] of Object.entries(categories)) {
-          const chartId = category + 'AttritionChart';
-          try {
-            const dataCSV = await loadCSV(`data/attrition/${file}`);
-            if (dataCSV.length > 0) {
-              createBarChartWithHighlightFirst(chartId,
-                dataCSV.map(d => d.category),
-                dataCSV.map(d => Number(d.attrition))
-              );
-            }
-          } catch (err) {
-            console.warn(`Failed to load ${category} attrition chart:`, err);
-          }
-        }
-
-        // Word Cloud - Sentiment analysis
-        const sentiment = await loadCSV('data/attrition/sentiment.csv');
-        const sentimentContainer = document.getElementById('sentimentCloud');
-        sentimentContainer.innerHTML = sentiment.map(s => `
-          <span style="font-size: ${Number(s.weight)}px; color: ${getRandomMagentaColor()};">${s.sentiment}</span>
-        `).join('');
-
-      } catch (e) {
-        console.error('Error loading Attrition data:', e);
-      }
-    }
-
-    // Load Talent Acquisition Looker
-    async function loadTalentAcquisitionData() {
-      try {
-        const joiningProb = await loadCSV('data/talent/joining_probability.csv');
-        createHorizontalBarChart('joiningProbabilityChart',
-          joiningProb.map(d => d.category),
-          joiningProb.map(d => Number(d.percentage))
-        );
-
-        const candidates = await loadCSV('data/talent/candidates.csv');
-        const tbody = document.getElementById('candidateTableBody');
-        tbody.innerHTML = candidates.map(c => {
-          const pColor = getProbabilityColor(c.probability);
-          const cColor = getCategoryColor(c.category);
-          return `
-            <tr class="hover:bg-magenta-50 candidate-row">
-              <td class="px-3 py-3 font-medium text-xs sm:text-sm candidate-name">${c.name}</td>
-              <td class="px-3 py-3 text-xs sm:text-sm">${c.email}</td>
-              <td class="px-3 py-3">
-                <span class="bg-${pColor}-100 text-${pColor}-800 px-2 py-1 rounded-full text-xs">${c.probability}%</span>
-              </td>
-              <td class="px-3 py-3">
-                <span class="bg-${cColor}-100 text-${cColor}-800 px-2 py-1 rounded-full text-xs">${c.category}</span>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      } catch (e) {
-        console.error('Error loading Talent Acquisition data:', e);
-      }
-    }
-
-    // On page load
-    document.addEventListener('DOMContentLoaded', () => {
-      loadEmployee360Data();
-      loadAttritionData();
-      loadTalentAcquisitionData();
-    });
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
