@@ -492,7 +492,7 @@
     async function loadAttritionData() {
       try {
         // Cards
-        const metrics = await loadCSV('data/attrition/metrics.csv');
+        const metrics = await loadCSV('data/ attrition/metrics.csv');
         const metricsContainer = document.getElementById('attrition-metrics');
         metricsContainer.innerHTML = metrics.map(m => `
           <div class="metric-card">
@@ -502,13 +502,13 @@
           </div>`).join('');
 
         // Word Cloud - Top attrition reasons
-        const reasons = await loadCSV('data/attrition/reasons.csv');
+        const reasons = await loadCSV('data/ attrition/reasons.csv');
         const reasonsContainer = document.getElementById('attritionReasons');
         reasonsContainer.innerHTML = reasons.map(r => `
           <span style="font-size: ${Number(r.weight)}px; color: ${getRandomMagentaColor()};">${r.reason}</span>`).join('');
 
         // Department risk chart
-        const deptRisk = await loadCSV('data/attrition/department_risk.csv');
+        const deptRisk = await loadCSV('data/ attrition/department_risk.csv');
         createBarChart('departmentRiskChart',
           deptRisk.map(d => d.department),
           deptRisk.map(d => Number(d.risk_percentage)),
@@ -532,7 +532,7 @@
         for (const [category, file] of Object.entries(categories)) {
           const chartId = category + 'AttritionChart';
           try {
-            const dataCSV = await loadCSV(`data/attrition/${file}`);
+            const dataCSV = await loadCSV(`data/ attrition/${file}`);
             if (dataCSV.length > 0) {
               createBarChartWithHighlightFirst(chartId,
                 dataCSV.map(d => d.category),
@@ -545,7 +545,7 @@
         }
 
         // Word Cloud - Sentiment analysis
-        const sentiment = await loadCSV('data/attrition/sentiment.csv');
+        const sentiment = await loadCSV('data/ attrition/sentiment.csv');
         const sentimentContainer = document.getElementById('sentimentCloud');
         sentimentContainer.innerHTML = sentiment.map(s => `
           <span style="font-size: ${Number(s.weight)}px; color: ${getRandomMagentaColor()};">${s.sentiment}</span>

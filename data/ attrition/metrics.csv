@@ -1,2 +1,5 @@
 metric,value,change
 Employees at Risk,18.50%,Company-wide
+Total Attrition,83,employees
+Attrition Rate,5.5%,this quarter
+High Risk Employees,278,identified
