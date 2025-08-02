@@ -314,10 +314,10 @@ async function loadAttritionData() {
             { file: 'tenure.csv', chartId: 'tenureAttritionChart', labelKey: 'category', dataKey: 'attrition' },
             { file: 'business_unit.csv', chartId: 'businessUnitAttritionChart', labelKey: 'category', dataKey: 'attrition' },
             { file: 'manager.csv', chartId: 'managerAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'category', dataKey: 'attrition' },
             { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'category', dataKey: 'attrition' },
             { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'commute.csv', chartId: 'distanceAttritionChart', labelKey: 'category', dataKey: 'attrition' }
+            { file: 'distance.csv', chartId: 'distanceAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'category', dataKey: 'attrition' }
         ];
         
         for (const config of chartConfigs) {
