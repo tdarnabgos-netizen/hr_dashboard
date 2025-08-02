@@ -1,5 +1,6 @@
 // Global variables
 let charts = {};
+let candidatesData = []; // Store candidates data for filtering
 const magentaColors = {
     primary: '#ec4899',
     secondary: '#db2777',
@@ -324,7 +325,7 @@ async function loadAttritionData() {
                     createBarChart(config.chartId,
                         data.map(d => d[config.labelKey]),
                         data.map(d => parseFloat(d[config.dataKey])),
-                        '% Users at Risk'
+                        '% Employees at Risk'
                     );
                 } else {
                     createBarChartWithRedFirst(config.chartId,
@@ -354,41 +355,61 @@ async function loadTalentData() {
         }
         
         // Load candidate table data
-        const candidatesData = await loadCSV('data/talent/candidates.csv');
-        const tableBody = document.getElementById('candidateTableBody');
+        candidatesData = await loadCSV('data/talent/candidates.csv');
         
         if (candidatesData.length > 0) {
-            tableBody.innerHTML = candidatesData.map(candidate => {
-                const probability = parseFloat(candidate.join_probability);
-                let probabilityClass = 'probability-low';
-                if (probability >= 80) probabilityClass = 'probability-high';
-                else if (probability >= 60) probabilityClass = 'probability-medium';
-                
-                let categoryClass = 'category-low';
-                if (candidate.join_probability_category === 'High') categoryClass = 'category-high';
-                else if (candidate.join_probability_category === 'Medium') categoryClass = 'category-medium';
-                
-                return `
-                    <tr>
-                        <td>${candidate.candidate}</td>
-                        <td>${candidate.candidate_email}</td>
-                        <td>
-                            <span class="probability-badge ${probabilityClass}">
-                                ${candidate.join_probability}%
-                            </span>
-                        </td>
-                        <td>
-                            <span class="category-badge ${categoryClass}">
-                                ${candidate.join_probability_category}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            renderCandidateTable(candidatesData);
         }
         
     } catch (error) {
         console.error('Error loading Talent data:', error);
+    }
+}
+
+// Candidate table rendering function
+function renderCandidateTable(data) {
+    const tableBody = document.getElementById('candidateTableBody');
+    
+    tableBody.innerHTML = data.map(candidate => {
+        const probability = parseFloat(candidate.join_probability);
+        let probabilityClass = 'probability-low';
+        if (probability >= 80) probabilityClass = 'probability-high';
+        else if (probability >= 60) probabilityClass = 'probability-medium';
+        
+        let categoryClass = 'category-low';
+        if (candidate.join_probability_category === 'High') categoryClass = 'category-high';
+        else if (candidate.join_probability_category === 'Medium') categoryClass = 'category-medium';
+        
+        return `
+            <tr>
+                <td>${candidate.candidate}</td>
+                <td>${candidate.candidate_email}</td>
+                <td>
+                    <span class="probability-badge ${probabilityClass}">
+                        ${candidate.join_probability}%
+                    </span>
+                </td>
+                <td>
+                    <span class="category-badge ${categoryClass}">
+                        ${candidate.join_probability_category}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Filter candidates by type
+function filterCandidatesByType() {
+    const filterValue = document.getElementById('typeFilter').value;
+    
+    if (filterValue === 'all') {
+        renderCandidateTable(candidatesData);
+    } else {
+        const filteredData = candidatesData.filter(candidate => 
+            candidate.join_probability_category === filterValue
+        );
+        renderCandidateTable(filteredData);
     }
 }
 

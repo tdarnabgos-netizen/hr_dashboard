@@ -85,7 +85,7 @@
                 <div class="card attrition-card">
                     <div class="card-icon">⚠️</div>
                     <div class="card-content">
-                        <h3>Users at Risk of Attrition</h3>
+                        <h3>Employees at Risk of Attrition</h3>
                         <div class="card-value" id="attritionRisk">-</div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                 </div>
                 
                 <div class="chart-wrapper">
-                    <h3>% Users at Risk by Department</h3>
+                    <h3>% Employees at Risk by Department</h3>
                     <canvas id="deptAttritionChart"></canvas>
                 </div>
                 
@@ -172,6 +172,15 @@
                 
                 <div class="chart-wrapper full-width">
                     <h3>Candidate View</h3>
+                    <div class="filter-container">
+                        <label for="typeFilter">Filter by Type:</label>
+                        <select id="typeFilter" onchange="filterCandidatesByType()">
+                            <option value="all">All Types</option>
+                            <option value="High">High Probability</option>
+                            <option value="Medium">Medium Probability</option>
+                            <option value="Low">Low Probability</option>
+                        </select>
+                    </div>
                     <div class="table-container">
                         <table id="candidateTable">
                             <thead>
