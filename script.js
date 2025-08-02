@@ -384,11 +384,11 @@ function renderCandidateTable(data) {
         
         return `
             <tr>
-                <td>${candidate.candidate}</td>
-                <td>${candidate.candidate_email}</td>
+                <td>${candidate.Candidate}</td>
+                <td>${candidate['Candidate Email']}</td>
                 <td>
                     <span class="probability-badge ${probabilityClass}">
-                        ${candidate.join_probability}%
+                        ${candidate.join_probability}
                     </span>
                 </td>
                 <td>
@@ -413,6 +413,12 @@ function filterCandidatesByType() {
         );
         renderCandidateTable(filteredData);
     }
+}
+
+// Remove filter function
+function removeFilter() {
+    document.getElementById('typeFilter').value = 'all';
+    renderCandidateTable(candidatesData);
 }
 
 // Initialize everything when DOM is loaded
