@@ -280,13 +280,13 @@ async function loadEmployee360Data() {
 async function loadAttritionData() {
     try {
         // Load metrics data for Employees at Risk of Attrition card
-        const metricsData = await loadCSV('data/%20attrition/metrics.csv');
+        const metricsData = await loadCSV('data/attrition/metrics.csv');
         if (metricsData.length > 0) {
             document.getElementById('attritionRisk').textContent = metricsData[0].value;
         }
         
         // Load word cloud data from reasons.csv for company-wide attrition reasons
-        const reasonsData = await loadCSV('data/%20attrition/reasons.csv');
+        const reasonsData = await loadCSV('data/attrition/reasons.csv');
         if (reasonsData.length > 0) {
             const attritionReasons = reasonsData.map(item => ({
                 text: item.reason,
@@ -296,7 +296,7 @@ async function loadAttritionData() {
         }
         
         // Load word cloud data from sentiment.csv for sentiment analysis
-        const sentimentData = await loadCSV('data/%20attrition/sentiment.csv');
+        const sentimentData = await loadCSV('data/attrition/sentiment.csv');
         if (sentimentData.length > 0) {
             const sentimentReasons = sentimentData.map(item => ({
                 text: item.sentiment,
@@ -308,20 +308,20 @@ async function loadAttritionData() {
         // Load CSV data for charts
         const chartConfigs = [
             { file: 'department_risk.csv', chartId: 'deptAttritionChart', labelKey: 'department', dataKey: 'risk_percentage' },
-            { file: 'gender.csv', chartId: 'genderAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'grade.csv', chartId: 'gradeAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'designation.csv', chartId: 'designationAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'tenure.csv', chartId: 'tenureAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'business_unit.csv', chartId: 'businessUnitAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'manager.csv', chartId: 'managerAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'distance.csv', chartId: 'distanceAttritionChart', labelKey: 'category', dataKey: 'attrition' },
-            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'category', dataKey: 'attrition' }
+            { file: 'gender.csv', chartId: 'genderAttritionChart', labelKey: 'gender', dataKey: 'attrition_count' },
+            { file: 'grade.csv', chartId: 'gradeAttritionChart', labelKey: 'grade', dataKey: 'attrition_count' },
+            { file: 'designation.csv', chartId: 'designationAttritionChart', labelKey: 'designation', dataKey: 'attrition_count' },
+            { file: 'tenure.csv', chartId: 'tenureAttritionChart', labelKey: 'tenure', dataKey: 'attrition_count' },
+            { file: 'business_unit.csv', chartId: 'businessUnitAttritionChart', labelKey: 'business_unit', dataKey: 'attrition_count' },
+            { file: 'manager.csv', chartId: 'managerAttritionChart', labelKey: 'manager', dataKey: 'attrition_count' },
+            { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'hometown_tier', dataKey: 'attrition_count' },
+            { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'age_group', dataKey: 'attrition_count' },
+            { file: 'distance.csv', chartId: 'distanceAttritionChart', labelKey: 'distance_range', dataKey: 'attrition_count' },
+            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'rating', dataKey: 'attrition_count' }
         ];
         
         for (const config of chartConfigs) {
-            const data = await loadCSV(`data/%20attrition/${config.file}`);
+            const data = await loadCSV(`data/attrition/${config.file}`);
             if (data.length > 0) {
                 if (config.chartId === 'deptAttritionChart') {
                     createBarChart(config.chartId,
