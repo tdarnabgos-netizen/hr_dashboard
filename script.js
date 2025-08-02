@@ -210,20 +210,147 @@ function createHorizontalBarChart(canvasId, labels, data, label) {
     });
 }
 
-// Word Cloud Functions
+// Enhanced Word Cloud Functions
 function createWordCloud(containerId, words) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
     container.innerHTML = '';
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
     
-    words.forEach(word => {
+    // Sort words by size (largest first for better positioning)
+    const sortedWords = [...words].sort((a, b) => b.size - a.size);
+    
+    // Color palette for different sentiment weights
+    const colors = [
+        '#ec4899', '#db2777', '#be185d', '#9d174d',
+        '#f97316', '#ea580c', '#dc2626', '#b91c1c',
+        '#8b5cf6', '#7c3aed', '#6366f1', '#4f46e5',
+        '#06b6d4', '#0891b2', '#059669', '#047857'
+    ];
+    
+    const positions = [];
+    
+    sortedWords.forEach((word, index) => {
         const span = document.createElement('span');
-        span.className = 'word-item';
+        span.className = 'word-cloud-item';
         span.textContent = word.text;
-        span.style.fontSize = `${Math.max(12, Math.min(24, word.size))}px`;
+        
+        // Enhanced size scaling with more variation
+        const fontSize = Math.max(14, Math.min(40, word.size * 1.8));
+        span.style.fontSize = `${fontSize}px`;
+        
+        // Random color based on weight
+        const colorIndex = Math.floor((word.size / 40) * colors.length) % colors.length;
+        span.style.color = colors[colorIndex];
+        
+        // Random rotation for more dynamic look
+        const rotation = (Math.random() - 0.5) * 30; // -15 to +15 degrees
+        span.style.transform = `rotate(${rotation}deg)`;
+        
+        // Position calculation with collision avoidance
+        let position = getValidPosition(container, span, positions, fontSize);
+        span.style.left = `${position.x}%`;
+        span.style.top = `${position.y}%`;
+        
+        // Store position for collision detection
+        positions.push({
+            x: position.x,
+            y: position.y,
+            width: word.text.length * fontSize * 0.6,
+            height: fontSize * 1.2
+        });
+        
+        // Add pulse effect for high-weight words
+        if (word.size > 25) {
+            span.style.animation = `wordFadeIn 0.6s ease-out forwards, wordPulse 3s ease-in-out infinite`;
+            span.style.animationDelay = `${index * 0.1}s, ${index * 0.1 + 1}s`;
+        }
+        
+        // Add hover effect with weight display
+        span.setAttribute('data-weight', word.size);
+        span.addEventListener('mouseenter', function() {
+            this.style.transform = `rotate(${rotation}deg) scale(1.2)`;
+            this.style.zIndex = '10';
+            
+            // Show tooltip with weight
+            const tooltip = document.createElement('div');
+            tooltip.className = 'word-tooltip';
+            tooltip.textContent = `Weight: ${word.size}`;
+            tooltip.style.position = 'absolute';
+            tooltip.style.background = 'rgba(0,0,0,0.8)';
+            tooltip.style.color = 'white';
+            tooltip.style.padding = '4px 8px';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.fontSize = '12px';
+            tooltip.style.pointerEvents = 'none';
+            tooltip.style.zIndex = '11';
+            tooltip.style.top = '-30px';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translateX(-50%)';
+            this.appendChild(tooltip);
+        });
+        
+        span.addEventListener('mouseleave', function() {
+            this.style.transform = `rotate(${rotation}deg) scale(1)`;
+            this.style.zIndex = '1';
+            const tooltip = this.querySelector('.word-tooltip');
+            if (tooltip) tooltip.remove();
+        });
+        
+        // Staggered animation
+        span.style.animationDelay = `${index * 0.1}s`;
+        
         container.appendChild(span);
     });
+}
+
+// Helper function to find valid position without overlaps
+function getValidPosition(container, element, existingPositions, fontSize) {
+    const containerRect = container.getBoundingClientRect();
+    const maxAttempts = 50;
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        const x = Math.random() * 80 + 10; // 10% to 90%
+        const y = Math.random() * 70 + 15; // 15% to 85%
+        
+        const elementWidth = element.textContent.length * fontSize * 0.6;
+        const elementHeight = fontSize * 1.2;
+        
+        let hasCollision = false;
+        
+        for (let pos of existingPositions) {
+            if (isColliding(x, y, elementWidth, elementHeight, pos.x, pos.y, pos.width, pos.height)) {
+                hasCollision = true;
+                break;
+            }
+        }
+        
+        if (!hasCollision) {
+            return { x, y };
+        }
+        
+        attempts++;
+    }
+    
+    // Fallback to spiral positioning if no valid position found
+    const angle = existingPositions.length * 0.5;
+    const radius = 20 + existingPositions.length * 2;
+    return {
+        x: 50 + Math.cos(angle) * radius,
+        y: 50 + Math.sin(angle) * radius
+    };
+}
+
+// Helper function to check collision between two rectangles
+function isColliding(x1, y1, w1, h1, x2, y2, w2, h2) {
+    const margin = 5; // Add some margin between words
+    return !(x1 + w1 + margin < x2 || 
+             x2 + w2 + margin < x1 || 
+             y1 + h1 + margin < y2 || 
+             y2 + h2 + margin < y1);
 }
 
 // Data Loading Functions
@@ -288,11 +415,36 @@ async function loadAttritionData() {
         // Load word cloud data from sentiment.csv for sentiment analysis
         const sentimentData = await loadCSV('data/attrition/sentiment.csv');
         if (sentimentData.length > 0) {
-            const sentimentReasons = sentimentData.map(item => ({
-                text: item.sentiment,
-                size: Math.max(12, Math.min(26, parseInt(item.weight)))
-            }));
+            // Find min and max weights for better scaling
+            const weights = sentimentData.map(item => parseInt(item.weight));
+            const minWeight = Math.min(...weights);
+            const maxWeight = Math.max(...weights);
+            const weightRange = maxWeight - minWeight;
+            
+            const sentimentReasons = sentimentData.map(item => {
+                const weight = parseInt(item.weight);
+                // Normalize weight to 0-1 range, then scale to 15-35 size range
+                const normalizedWeight = weightRange > 0 ? (weight - minWeight) / weightRange : 0.5;
+                const size = 15 + (normalizedWeight * 20); // 15-35 range for better variety
+                
+                return {
+                    text: item.sentiment,
+                    size: Math.round(size)
+                };
+            });
             createWordCloud('sentimentWordcloud', sentimentReasons);
+            
+            // Add refresh functionality
+            const refreshBtn = document.getElementById('refreshWordcloud');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    refreshBtn.style.transform = 'scale(1.05) rotate(360deg)';
+                    setTimeout(() => {
+                        refreshBtn.style.transform = 'scale(1) rotate(0deg)';
+                        createWordCloud('sentimentWordcloud', sentimentReasons);
+                    }, 300);
+                });
+            }
         }
         
         // Load CSV data for charts
