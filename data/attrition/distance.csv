@@ -1,6 +1,4 @@
 distance_range,attrition_count
-0-5 km,45
-5-10 km,67
-10-20 km,78
-20-30 km,56
-30+ km,34
+>1 hour,2427
+30 mins - 1 hour,2139
+< 30 mins,1945
