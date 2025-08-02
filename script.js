@@ -285,16 +285,6 @@ async function loadAttritionData() {
             document.getElementById('attritionRisk').textContent = metricsData[0].value;
         }
         
-        // Load word cloud data from reasons.csv for company-wide attrition reasons
-        const reasonsData = await loadCSV('data/attrition/reasons.csv');
-        if (reasonsData.length > 0) {
-            const attritionReasons = reasonsData.map(item => ({
-                text: item.reason,
-                size: Math.max(12, Math.min(26, parseInt(item.weight)))
-            }));
-            createWordCloud('attritionReasonsWordcloud', attritionReasons);
-        }
-        
         // Load word cloud data from sentiment.csv for sentiment analysis
         const sentimentData = await loadCSV('data/attrition/sentiment.csv');
         if (sentimentData.length > 0) {
@@ -302,7 +292,7 @@ async function loadAttritionData() {
                 text: item.sentiment,
                 size: Math.max(12, Math.min(26, parseInt(item.weight)))
             }));
-            createWordCloud('sentimentWordcloud', sentimentReasons);
+            createWordCloud('attritionReasonsWordcloud', sentimentReasons);
         }
         
         // Load CSV data for charts
