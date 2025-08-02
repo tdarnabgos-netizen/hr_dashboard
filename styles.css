@@ -63,6 +63,18 @@ header p {
     transition: all 0.3s ease;
     white-space: nowrap;
     margin: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.tab-btn:hover .tab-icon {
+    transform: scale(1.1);
 }
 
 .tab-btn:hover {
@@ -195,31 +207,95 @@ header p {
     max-height: 300px;
 }
 
-/* Word Cloud Styles */
+/* Enhanced Word Cloud Styles */
 #sentimentWordcloud {
-    min-height: 250px;
-    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-    border-radius: 10px;
-    padding: 20px;
+    min-height: 300px;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);
+    border-radius: 15px;
+    padding: 30px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+#sentimentWordcloud::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(139, 69, 219, 0.1) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .word-item {
-    padding: 8px 16px;
+    padding: 10px 18px;
     background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
     color: white;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: transform 0.2s ease;
-    cursor: default;
+    border-radius: 30px;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .word-item:hover {
-    transform: scale(1.1);
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+    background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+.word-priority-high {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    animation: pulse-high 2s ease-in-out infinite;
+}
+
+.word-priority-medium {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    box-shadow: 0 5px 18px rgba(234, 88, 12, 0.3);
+}
+
+.word-priority-low {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.word-highlighted {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    transform: scale(1.2) !important;
+    box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5) !important;
+}
+
+@keyframes pulse-high {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* DTDL Message Styles */
+.dtdl-message {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 69, 219, 0.1) 100%);
+    border-radius: 10px;
+    border-left: 4px solid #ec4899;
+}
+
+.dtdl-message em {
+    color: #be185d;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 /* Table Styles */
@@ -320,6 +396,12 @@ header p {
     .tab-btn {
         padding: 10px 16px;
         font-size: 0.9rem;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .tab-icon {
+        font-size: 1.1rem;
     }
     
     .cards-container {
@@ -367,6 +449,22 @@ header p {
     .tab-btn {
         padding: 8px 12px;
         font-size: 0.8rem;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .tab-icon {
+        font-size: 1rem;
+    }
+    
+    #sentimentWordcloud {
+        padding: 20px;
+        min-height: 250px;
+    }
+    
+    .word-item {
+        padding: 8px 14px;
+        font-size: 0.9rem;
     }
     
     .chart-wrapper {

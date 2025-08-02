@@ -210,20 +210,54 @@ function createHorizontalBarChart(canvasId, labels, data, label) {
     });
 }
 
-// Word Cloud Functions
+// Enhanced Word Cloud Functions
 function createWordCloud(containerId, words) {
     const container = document.getElementById(containerId);
     if (!container) return;
     
     container.innerHTML = '';
     
-    words.forEach(word => {
+    // Sort words by weight for better visual hierarchy
+    const sortedWords = words.sort((a, b) => b.size - a.size);
+    
+    // Create word cloud with improved sizing and colors
+    sortedWords.forEach((word, index) => {
         const span = document.createElement('span');
         span.className = 'word-item';
         span.textContent = word.text;
-        span.style.fontSize = `${Math.max(12, Math.min(24, word.size))}px`;
+        
+        // Dynamic font sizing based on weight and position
+        const maxSize = 28;
+        const minSize = 14;
+        const normalizedSize = ((word.size - 548) / (1883 - 548)) * (maxSize - minSize) + minSize;
+        span.style.fontSize = `${Math.max(minSize, Math.min(maxSize, normalizedSize))}px`;
+        
+        // Add priority class for top words
+        if (index < 3) {
+            span.classList.add('word-priority-high');
+        } else if (index < 6) {
+            span.classList.add('word-priority-medium');
+        } else {
+            span.classList.add('word-priority-low');
+        }
+        
+        // Add click interaction
+        span.addEventListener('click', () => {
+            span.classList.toggle('word-highlighted');
+            // Optional: Show more details about this sentiment
+            showSentimentDetails(word);
+        });
+        
+        // Add hover effect with weight display
+        span.title = `${word.text}: ${word.size} mentions`;
+        
         container.appendChild(span);
     });
+}
+
+function showSentimentDetails(word) {
+    // This could be expanded to show more detailed analytics
+    console.log(`Sentiment: ${word.text}, Weight: ${word.size}`);
 }
 
 // Data Loading Functions
