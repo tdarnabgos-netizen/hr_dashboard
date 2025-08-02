@@ -280,13 +280,13 @@ async function loadEmployee360Data() {
 async function loadAttritionData() {
     try {
         // Load metrics data for Employees at Risk of Attrition card
-        const metricsData = await loadCSV('data/ attrition/metrics.csv');
+        const metricsData = await loadCSV('data/%20attrition/metrics.csv');
         if (metricsData.length > 0) {
             document.getElementById('attritionRisk').textContent = metricsData[0].value;
         }
         
         // Load word cloud data from reasons.csv for company-wide attrition reasons
-        const reasonsData = await loadCSV('data/ attrition/reasons.csv');
+        const reasonsData = await loadCSV('data/%20attrition/reasons.csv');
         if (reasonsData.length > 0) {
             const attritionReasons = reasonsData.map(item => ({
                 text: item.reason,
@@ -296,7 +296,7 @@ async function loadAttritionData() {
         }
         
         // Load word cloud data from sentiment.csv for sentiment analysis
-        const sentimentData = await loadCSV('data/ attrition/sentiment.csv');
+        const sentimentData = await loadCSV('data/%20attrition/sentiment.csv');
         if (sentimentData.length > 0) {
             const sentimentReasons = sentimentData.map(item => ({
                 text: item.sentiment,
@@ -317,11 +317,11 @@ async function loadAttritionData() {
             { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'rating', dataKey: 'attrition_count' },
             { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'hometown_tier', dataKey: 'attrition_count' },
             { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'age_group', dataKey: 'attrition_count' },
-            { file: 'distance.csv', chartId: 'distanceAttritionChart', labelKey: 'distance_range', dataKey: 'attrition_count' }
+            { file: 'commute.csv', chartId: 'distanceAttritionChart', labelKey: 'category', dataKey: 'attrition' }
         ];
         
         for (const config of chartConfigs) {
-            const data = await loadCSV(`data/attrition/${config.file}`);
+            const data = await loadCSV(`data/%20attrition/${config.file}`);
             if (data.length > 0) {
                 if (config.chartId === 'deptAttritionChart') {
                     createBarChart(config.chartId,
