@@ -279,29 +279,31 @@ async function loadEmployee360Data() {
 
 async function loadAttritionData() {
     try {
-        // Update attrition risk card
-        document.getElementById('attritionRisk').textContent = '18.5%';
+        // Load metrics data for Employees at Risk of Attrition card
+        const metricsData = await loadCSV('data/ attrition/metrics.csv');
+        if (metricsData.length > 0) {
+            document.getElementById('attritionRisk').textContent = metricsData[0].value;
+        }
         
-        // Load word cloud data
-        const attritionReasons = [
-            { text: 'Low Salary', size: 24 },
-            { text: 'Work-Life Balance', size: 20 },
-            { text: 'Career Growth', size: 18 },
-            { text: 'Management Issues', size: 16 },
-            { text: 'Workload', size: 14 },
-            { text: 'Remote Work', size: 12 }
-        ];
-        createWordCloud('attritionReasonsWordcloud', attritionReasons);
+        // Load word cloud data from reasons.csv for company-wide attrition reasons
+        const reasonsData = await loadCSV('data/ attrition/reasons.csv');
+        if (reasonsData.length > 0) {
+            const attritionReasons = reasonsData.map(item => ({
+                text: item.reason,
+                size: Math.max(12, Math.min(26, parseInt(item.weight)))
+            }));
+            createWordCloud('attritionReasonsWordcloud', attritionReasons);
+        }
         
-        const sentimentReasons = [
-            { text: 'Burnout', size: 22 },
-            { text: 'Stress', size: 20 },
-            { text: 'Dissatisfaction', size: 18 },
-            { text: 'Overwork', size: 16 },
-            { text: 'Poor Communication', size: 14 },
-            { text: 'Lack of Recognition', size: 12 }
-        ];
-        createWordCloud('sentimentWordcloud', sentimentReasons);
+        // Load word cloud data from sentiment.csv for sentiment analysis
+        const sentimentData = await loadCSV('data/ attrition/sentiment.csv');
+        if (sentimentData.length > 0) {
+            const sentimentReasons = sentimentData.map(item => ({
+                text: item.sentiment,
+                size: Math.max(12, Math.min(26, parseInt(item.weight)))
+            }));
+            createWordCloud('sentimentWordcloud', sentimentReasons);
+        }
         
         // Load CSV data for charts
         const chartConfigs = [
@@ -325,7 +327,7 @@ async function loadAttritionData() {
                     createBarChart(config.chartId,
                         data.map(d => d[config.labelKey]),
                         data.map(d => parseFloat(d[config.dataKey])),
-                        '% Employees at Risk'
+                        '#Employees at Risk'
                     );
                 } else {
                     createBarChartWithRedFirst(config.chartId,
