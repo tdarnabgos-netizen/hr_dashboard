@@ -308,15 +308,15 @@ async function loadAttritionData() {
         // Load CSV data for charts
         const chartConfigs = [
             { file: 'department_risk.csv', chartId: 'deptAttritionChart', labelKey: 'department', dataKey: 'risk_percentage' },
-            { file: 'gender.csv', chartId: 'genderAttritionChart', labelKey: 'gender', dataKey: 'attrition_count' },
-            { file: 'grade.csv', chartId: 'gradeAttritionChart', labelKey: 'grade', dataKey: 'attrition_count' },
-            { file: 'designation.csv', chartId: 'designationAttritionChart', labelKey: 'designation', dataKey: 'attrition_count' },
-            { file: 'tenure.csv', chartId: 'tenureAttritionChart', labelKey: 'tenure', dataKey: 'attrition_count' },
-            { file: 'business_unit.csv', chartId: 'businessUnitAttritionChart', labelKey: 'business_unit', dataKey: 'attrition_count' },
-            { file: 'manager.csv', chartId: 'managerAttritionChart', labelKey: 'manager', dataKey: 'attrition_count' },
-            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'rating', dataKey: 'attrition_count' },
-            { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'hometown_tier', dataKey: 'attrition_count' },
-            { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'age_group', dataKey: 'attrition_count' },
+            { file: 'gender.csv', chartId: 'genderAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'grade.csv', chartId: 'gradeAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'designation.csv', chartId: 'designationAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'tenure.csv', chartId: 'tenureAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'business_unit.csv', chartId: 'businessUnitAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'manager.csv', chartId: 'managerAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'category', dataKey: 'attrition' },
+            { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'category', dataKey: 'attrition' },
             { file: 'commute.csv', chartId: 'distanceAttritionChart', labelKey: 'category', dataKey: 'attrition' }
         ];
         
