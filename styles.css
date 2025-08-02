@@ -196,7 +196,6 @@ header p {
 }
 
 /* Word Cloud Styles */
-#attritionReasonsWordcloud,
 #sentimentWordcloud {
     min-height: 250px;
     background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
