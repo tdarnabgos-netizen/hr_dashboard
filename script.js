@@ -341,7 +341,8 @@ async function loadAttritionData() {
             { file: 'hometown.csv', chartId: 'hometownAttritionChart', labelKey: 'hometown_tier', dataKey: 'attrition_count' },
             { file: 'age.csv', chartId: 'ageAttritionChart', labelKey: 'age_group', dataKey: 'attrition_count' },
             { file: 'distance.csv', chartId: 'distanceAttritionChart', labelKey: 'distance_range', dataKey: 'attrition_count' },
-            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'rating', dataKey: 'attrition_count' }
+            { file: 'rating.csv', chartId: 'ratingAttritionChart', labelKey: 'rating', dataKey: 'attrition_count' },
+            { file: 'education.csv', chartId: 'qualificationAttritionChart', labelKey: 'Educational Qualification/Degree', dataKey: 'count' }
         ];
         
         for (const config of chartConfigs) {
